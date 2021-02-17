@@ -2,7 +2,7 @@
 export class ImageProcessingLAB {
     private allPixels = Array<PixelData>();
     private clusters = Array<Array<PixelData>>();
-    private tolerance = 20;
+    private tolerance = 3.5;
 
     constructor(private context: CanvasRenderingContext2D) {
         this.prepareData();
@@ -32,17 +32,18 @@ export class ImageProcessingLAB {
                     x: x,
                     y: y
                 } as PixelData;
-                const leftPixel = this.allPixels[width * y + (x - 1)];
-                if (leftPixel && this.isInSameCluster(leftPixel, pixel)) {
-                    pixel.cluster = leftPixel.cluster;
+
+                const topleftPixel = this.allPixels[width * (y - 1) + (x - 1)];
+                if (topleftPixel && this.isInSameCluster(topleftPixel, pixel)) {
+                    pixel.cluster = topleftPixel.cluster;
                 } else {
-                    const topPixel = this.allPixels[width * (y - 1) + x];
-                    if (topPixel && this.isInSameCluster(topPixel, pixel)) {
-                        pixel.cluster = topPixel.cluster;
+                    const leftPixel = this.allPixels[width * y + (x - 1)];
+                    if (leftPixel && this.isInSameCluster(leftPixel, pixel)) {
+                        pixel.cluster = leftPixel.cluster;
                     } else {
-                        const topleftPixel = this.allPixels[width * (y - 1) + (x - 1)];
-                        if (topleftPixel && this.isInSameCluster(topleftPixel, pixel)) {
-                            pixel.cluster = topleftPixel.cluster;
+                        const topPixel = this.allPixels[width * (y - 1) + x];
+                        if (topPixel && this.isInSameCluster(topPixel, pixel)) {
+                            pixel.cluster = topPixel.cluster;
                         } else {
                             pixel.cluster = latestClusterNumber;
                             this.clusters[latestClusterNumber] = new Array<PixelData>();
@@ -58,7 +59,7 @@ export class ImageProcessingLAB {
 
     private isInSameCluster(pixelA: PixelData, pixelB: PixelData): boolean {
         const delta = this.deltaE(pixelA.labData, pixelB.labData);
-        return delta < 6;
+        return delta < this.tolerance;
     }
 
     // code from: https://github.com/antimatter15/rgb-lab/blob/master/color.js
